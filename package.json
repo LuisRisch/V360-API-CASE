@@ -1,0 +1,31 @@
+{
+  "name": "todo-api",
+  "version": "1.0.0",
+  "description": "api for todo app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuisRisch/V360-API-CASE.git"
+  },
+  "keywords": [
+    "api",
+    "js",
+    "mongo"
+  ],
+  "author": "Luis Felipe Risch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LuisRisch/V360-API-CASE/issues"
+  },
+  "homepage": "https://github.com/LuisRisch/V360-API-CASE#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.7",
+    "nodemon": "^2.0.15"
+  }
+}
