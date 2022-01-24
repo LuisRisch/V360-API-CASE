@@ -5,11 +5,11 @@ const isAuth = require('../middleware/is-auth');
 const router = express.Router();
 
 // GET /lists
-router.get('/lists', isAuth, listController.getLists);
+router.get('/', isAuth, listController.getLists);
 
 //POST /lists/post
 router.post(
-  '/lists/post',
+  '/post',
   isAuth,
   [
     body('title')
@@ -25,11 +25,11 @@ router.post(
 );
 
 // GET /lists/:listId
-router.get('/lists/:listId', isAuth, listController.getList);
+router.get('/:listId', isAuth, listController.getList);
 
 // PUT /lists/listId
 router.put(
-  '/lists/:listId',
+  '/:listId',
   isAuth,
   [
     body('title')
@@ -45,6 +45,6 @@ router.put(
 );
 
 // DELETE /lists/listId
-router.delete('/lists/:listId', isAuth, listController.deleteList);
+router.delete('/:listId', isAuth, listController.deleteList);
 
 module.exports = router;

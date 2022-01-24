@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const app = express();
 const authRoutes = require('./routes/auth');
 const listRoutes = require('./routes/list');
@@ -21,8 +22,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRoutes);
-app.use(listRoutes);
-app.use(taskRoutes);
+app.use('/lists', listRoutes);
+app.use('/tasks', taskRoutes);
 
 /* Error handling route */
 app.use((error, req, res, next) => {
@@ -33,9 +34,10 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
+dotenv.config();
 mongoose
   .connect(
-    'mongodb+srv://LuisFelipeRisch:Luis25111999@cluster0.n9zin.mongodb.net/todo?retryWrites=true&w=majority'
+    process.env.MONGO_URL
   )
   .then(result => {
     app.listen(8080);

@@ -6,7 +6,7 @@ const router = express.Router();
 
 //POST /tasks/post
 router.post(
-  '/tasks/post',
+  '/post',
   isAuth,
   [
     body('title')
@@ -31,7 +31,7 @@ router.post(
 
 // PUT /tasks/taskId
 router.put(
-  '/tasks/:taskId',
+  '/:taskId',
   isAuth,
   [
     body('title')
@@ -51,6 +51,6 @@ router.put(
 );
 
 // DELETE /tasks/taskId
-router.delete('/tasks/:taskId', isAuth, taskController.deleteTask);
+router.delete('/:taskId', isAuth, taskController.deleteTask);
 
 module.exports = router;
