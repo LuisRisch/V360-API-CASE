@@ -5,25 +5,25 @@ const Task = require('../models/task');
 
 exports.getLists = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 10;
+  const perPage = 6;
 
   try {
-    const lists = await List.find()
-      .populate('creator')
-      .sort({ createdAt: -1 })
+    const totalItems = await List.find({ creator: req.userId }).countDocuments();
+    const lists = await List.find({ creator: req.userId })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
     res.status(200).json({
-      message: 'Fetched lists successfully.',
+      message: 'Listas buscadas com sucesso',
       lists: lists,
+      total: totalItems
     });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -31,11 +31,11 @@ exports.createList = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new Error('Validação falhou. Os dados inseridos estão incorretos');
     error.statusCode = 422;
     error.data = errors.array();
 
-    next(error);
+    return next(error);
   }
 
   const title = req.body.title;
@@ -54,7 +54,7 @@ exports.createList = async (req, res, next) => {
     await user.save();
 
     res.status(201).json({
-      message: 'List created successfully!',
+      message: 'Lista criada com sucesso!',
       list: list,
       creator: { _id: user._id, name: user.name }
     });
@@ -63,28 +63,29 @@ exports.createList = async (req, res, next) => {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
 
 exports.getList = async (req, res, next) => {
   const listId = req.params.listId;
-  const list = await List.findById(listId).populate('creator').populate('tasks');
 
   try {
+    const list = await List.findById(listId).populate('tasks');
+
     if (!list) {
-      const error = new Error('Could not find list.');
+      const error = new Error('Não foi possível achar esta lista');
       error.statusCode = 404;
       throw error;
     }
 
-    res.status(200).json({ message: 'List fetched.', list: list });
+    res.status(200).json({ message: 'Lista buscada com sucesso', list: list });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -93,11 +94,11 @@ exports.updateList = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new Error('Validação falhou. Os dados inseridos estão incorretos');
     error.statusCode = 422;
     error.data = errors.array();
 
-    next(error);
+    return next(error);
   }
 
   const title = req.body.title;
@@ -107,13 +108,13 @@ exports.updateList = async (req, res, next) => {
     const list = await List.findById(listId).populate('creator');
 
     if (!list) {
-      const error = new Error('Could not find list.');
+      const error = new Error('Não foi possível achar a lista');
       error.statusCode = 404;
       throw error;
     }
 
     if (list.creator._id.toString() !== req.userId) {
-      const error = new Error('Not authorized!');
+      const error = new Error('Não autorizado');
       error.statusCode = 403;
       throw error;
     }
@@ -122,13 +123,13 @@ exports.updateList = async (req, res, next) => {
     list.description = description
 
     const result = await list.save();
-    res.status(200).json({ message: 'List updated!', list: result });
+    res.status(200).json({ message: 'Lista atualizada com sucesso', list: result });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -139,13 +140,13 @@ exports.deleteList = async (req, res, next) => {
     const list = await List.findById(listId);
 
     if (!list) {
-      const error = new Error('Could not find list.');
+      const error = new Error('Não foi possível achar a lista');
       error.statusCode = 404;
       throw error;
     }
 
     if (list.creator.toString() !== req.userId) {
-      const error = new Error('Not authorized!');
+      const error = new Error('Não autorizado');
       error.statusCode = 403;
       throw error;
     }
@@ -165,12 +166,12 @@ exports.deleteList = async (req, res, next) => {
     user.lists.pull(listId);
     await user.save();
 
-    res.status(200).json({ message: 'Deleted list.' });
+    res.status(200).json({ message: 'Lista deletada' });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };

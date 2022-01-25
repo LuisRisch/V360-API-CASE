@@ -6,11 +6,11 @@ exports.createTask = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new Error('Validação falhou. Os dados inseridos estão incorretos');
     error.statusCode = 422;
     error.data = errors.array();
 
-    next(error);
+    return next(error);
   }
 
   const title = req.body.title;
@@ -34,7 +34,7 @@ exports.createTask = async (req, res, next) => {
     await list.save();
 
     res.status(201).json({
-      message: 'Task created successfully!',
+      message: 'Tarefa criada com sucesso',
       task: task,
     });
   } catch (err) {
@@ -42,20 +42,51 @@ exports.createTask = async (req, res, next) => {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
+
+exports.checkTask = async (req, res, next) => {
+  const taskId = req.params.taskId;
+
+  try {
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      const error = new Error('Não foi possível achar esta tarefa');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (task.creator.toString() !== req.userId) {
+      const error = new Error('Não autorizado');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    task.completed = !task.completed;
+    const result = await task.save();
+
+    res.status(200).json({ message: 'Tarefa atualizada', task: result });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+
+    return next(err);
+  }
+}
 
 exports.updateTask = async (req, res, next) => {
   const taskId = req.params.taskId;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new Error('Validação falhou. Os dados inseridos estão incorretos');
     error.statusCode = 422;
     error.data = errors.array();
 
-    next(error);
+    return next(error);
   }
 
   const title = req.body.title;
@@ -66,13 +97,13 @@ exports.updateTask = async (req, res, next) => {
     const task = await Task.findById(taskId).populate('creator');
 
     if (!task) {
-      const error = new Error('Could not find task.');
+      const error = new Error('Não foi possível achar essa tarefa');
       error.statusCode = 404;
       throw error;
     }
 
     if (task.creator._id.toString() !== req.userId) {
-      const error = new Error('Not authorized!');
+      const error = new Error('Não autorizado');
       error.statusCode = 403;
       throw error;
     }
@@ -82,13 +113,13 @@ exports.updateTask = async (req, res, next) => {
     task.priority = priority;
 
     const result = await task.save();
-    res.status(200).json({ message: 'task updated!', task: result });
+    res.status(200).json({ message: 'Tarefa atualizada', task: result });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -99,13 +130,13 @@ exports.deleteTask = async (req, res, next) => {
     const task = await Task.findById(taskId);
 
     if (!task) {
-      const error = new Error('Could not find task.');
+      const error = new Error('Não foi possível achar esta tarefa');
       error.statusCode = 404;
       throw error;
     }
 
     if (task.creator.toString() !== req.userId) {
-      const error = new Error('Not authorized!');
+      const error = new Error('Não autorizado');
       error.statusCode = 403;
       throw error;
     }
@@ -116,12 +147,12 @@ exports.deleteTask = async (req, res, next) => {
 
     await Task.findByIdAndRemove(taskId);
 
-    res.status(200).json({ message: 'Deleted task.' });
+    res.status(200).json({ message: 'Tarefa deletada' });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
 
-    next(err);
+    return next(err);
   }
 };

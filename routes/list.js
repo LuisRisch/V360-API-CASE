@@ -15,11 +15,13 @@ router.post(
     body('title')
       .trim()
       .not()
-      .isEmpty(),
+      .isEmpty()
+      .withMessage('O título não pode ser vazio'),
     body('description')
       .trim()
       .not()
       .isEmpty()
+      .withMessage('A descrição não pode ser vazia')
   ],
   listController.createList
 );
@@ -35,11 +37,13 @@ router.put(
     body('title')
       .trim()
       .not()
-      .isEmpty(),
+      .isEmpty()
+      .withMessage('O título não pode ser vazio'),
     body('description')
       .trim()
       .not()
       .isEmpty()
+      .withMessage('A descrição não pode ser vazia')
   ],
   listController.updateList
 );
