@@ -69,9 +69,15 @@ exports.createList = async (req, res, next) => {
 
 exports.getList = async (req, res, next) => {
   const listId = req.params.listId;
+  const currentPage = req.query.page || 1;
+  const perPage = 6;
 
   try {
-    const list = await List.findById(listId).populate('tasks');
+    const list = await List.findById(listId);
+    const totalItems = await Task.find({ fromList: listId, creator: req.userId }).countDocuments();
+    const tasks = await Task.find({ fromList: listId, creator: req.userId })
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage);
 
     if (!list) {
       const error = new Error('Não foi possível achar esta lista');
@@ -79,7 +85,7 @@ exports.getList = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200).json({ message: 'Lista buscada com sucesso', list: list });
+    res.status(200).json({ message: 'Lista buscada com sucesso', list: list, tasks: tasks, total: totalItems });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
