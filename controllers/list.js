@@ -5,7 +5,7 @@ const Task = require('../models/task');
 
 exports.getLists = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 6;
+  const perPage = 2;
 
   try {
     const totalItems = await List.find({ creator: req.userId }).countDocuments();
@@ -70,7 +70,7 @@ exports.createList = async (req, res, next) => {
 exports.getList = async (req, res, next) => {
   const listId = req.params.listId;
   const currentPage = req.query.page || 1;
-  const perPage = 6;
+  const perPage = 2;
 
   try {
     const list = await List.findById(listId);
